@@ -30,7 +30,51 @@ Creates an AWS EC2 instance with the following specs:
 
 Creates a security group named `my_security_group` that allows SSH access only from a specific IP address.
 
-## Remote Execution 🎮
+## Remote Execution with `remote-exec` Provisioner 🎮
+
+The `remote-exec` provisioner allows you to execute commands on the remote machine once it's up and running. In this project, the following commands are executed remotely on the EC2 instance:
+
+1. **Enable Password Authentication for SSH**: Modifies the SSH configuration to allow password authentication.
+    ```bash
+    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    ```
+
+2. **Restart SSH Service**: Restarts the SSH service to apply the configuration changes.
+    ```bash
+    sudo systemctl restart sshd
+    ```
+
+3. **Install Tailscale**: Installs Tailscale for creating a secure network.
+    ```bash
+    curl -fsSL https://tailscale.com/install.sh | sh
+    ```
+
+4. **Download `bottom` Tool**: Downloads a specific version of the `bottom` system monitoring tool.
+    ```bash
+    curl -LO https://github.com/ClementTsang/bottom/releases/download/0.9.6/bottom_0.9.6_amd64.deb
+    ```
+
+5. **Install `bottom` Tool**: Installs the `bottom` tool if the download was successful.
+    ```bash
+    sudo dpkg -i bottom_0.9.6_amd64.deb
+    ```
+
+### Connection Details 🌐
+
+The `connection` block specifies how Terraform should connect to the instance for remote provisioning. It uses SSH and the following parameters:
+
+- **Type**: SSH
+- **User**: `ubuntu`
+- **Private Key**: Your SSH private key
+- **Host**: Automatically retrieves the public IP of the instance
+
+### How It Works 🤔
+
+Once the EC2 instance is up and running, Terraform uses SSH to execute the above commands on the remote machine. This allows you to automate the initial setup and configuration tasks.
+
+(Note: Make sure your security group and key pair are configured to allow SSH access from your IP address.)
+
+
 
 After the instance is up and running, the following commands are executed:
 - Enable Password Authentication for SSH
